@@ -1,55 +1,152 @@
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/7659/174594540-5e29e523-396a-465b-9a6e-6cab5b15a568.svg#gh-light-mode-only" alt="Dependabot" width="336">
-  <img src="https://user-images.githubusercontent.com/7659/174594559-0b3ddaa7-e75b-4f10-9dee-b51431a9fd4c.svg#gh-dark-mode-only" alt="Dependabot" width="336">
-</p>
+# VBA Macro: Fill Yard Files from STOCK
 
-# Updater Action
+## Overview
+This VBA macro automatically fills **Internal Yard** and **External Yard** Excel files with container data from the **STOCK.xlsx** file based on:
+- Container Mode: Import, Export, Storage
+- Block: M, A, B, C, D, H, F, Y777, S22, etc.
+- Full/Empty status (FE): F or E
+- Container Length: 20, 40, 45 feet
 
-**Name:** `github/dependabot-action`
+## Files Included
+1. **FillYardsFromStock.vba** - Basic version (simple, easy to understand)
+2. **FillYardsFromStock_Enhanced.vba** - Enhanced version ⭐ **RECOMMENDED**
+   - Faster processing
+   - Progress bar
+   - Better error handling
+   - Optimized for large files
+3. **تعليمات_الاستخدام.md** - Arabic instructions (detailed)
+4. **README.md** - English instructions (this file)
 
-Runs Dependabot workloads via GitHub Actions.
+## Quick Start
 
-## Usage Instructions
+### Step 1: Import the Code
+1. Open a new Excel workbook
+2. Press `Alt + F11` to open VBA Editor
+3. Click `Insert` → `Module`
+4. Copy all code from `FillYardsFromStock_Enhanced.vba`
+5. Paste into the white window
+6. Save as **Excel Macro-Enabled Workbook** (*.xlsm)
 
-This action is used by the Dependabot [version][docs-version-updates] and [security][docs-security-updates] features in GitHub.com. It does not support being used in workflow files directly.
+### Step 2: Run the Macro
+1. Press `Alt + F8` to open Macro list
+2. Select `FillYardsFromStock_Enhanced`
+3. Click `Run`
+4. Select your three files when prompted:
+   - STOCK.xlsx
+   - internal yard.xlsx
+   - external yard.xlsx
+5. Wait for processing to complete
 
-## Manually upgrading `dependabot-action` on GitHub Enterprise Server (GHES)
+## Customization
 
-To manually upgrade `dependabot-action` on your [GitHub Enterprise Server (GHES)](https://github.com/enterprise), follow [these instructions](https://docs.github.com/en/enterprise-server/admin/managing-github-actions-for-your-enterprise/managing-access-to-actions-from-githubcom/manually-syncing-actions-from-githubcom).
-**Warning:** The current release of `dependabot-action` only guarantees backwards compatibility with the [currently supported GHES versions](https://docs.github.com/en/enterprise-server/admin/all-releases). Once a GHES version is deprecated, future versions of `dependabot-action` may introduce incompatible changes.
+### Adding Internal Yard Blocks
+In the code, find this section:
+```vba
+dictInternal.Add "M", 6
+dictInternal.Add "A", 9
+```
+- First value: Block name from STOCK file
+- Second value: Row number in Internal Yard file where this block starts
 
-## Steps required to merge/deploy a PR
-1. Make changes to the PR
-2. Run the following commands:
-```bash
-npm run lint-check
-npm run format-check -- --write
-npm run test
+To add a new block:
+```vba
+dictInternal.Add "NEWBLOCK", 56
 ```
 
+### Adding External Yard Areas
+Find this section:
+```vba
+dictExternal.Add "التجارية", Array(6, "S444|S068|S032")
 ```
-nvm install;nvm use;npm clean-install;npm ci;npm run package
-```
-Note: If you do not execute the above step ☝️ and commit the code then CI will fail with the below error:
-```bash
-Run script/check-diff
-Detected uncommitted changes after build:
-diff --git a/dist/main/index.js b/dist/main/index.js
-index c09ccea..8f50b37 1006[4](https://github.com/github/dependabot-action/actions/runs/7720200685/job/21044694134?pr=1156#step:7:5)4
-Binary files a/dist/main/index.js and b/dist/main/index.js differ
-diff --git a/dist/main/index.js.map b/dist/main/index.js.map
-index cc44481..e[5](https://github.com/github/dependabot-action/actions/runs/7720200685/job/21044694134?pr=1156#step:7:6)0840f 100[6](https://github.com/github/dependabot-action/actions/runs/7720200685/job/21044694134?pr=1156#step:7:7)44
-Binary files a/dist/main/index.js.map and b/dist/main/index.js.map differ
+- First value: Yard name (for reference)
+- Second value (Array):
+  - First element: Starting row number
+  - Second element: List of Areas/Blocks (separated by |)
+
+To add a new yard:
+```vba
+dictExternal.Add "NewYard", Array(16, "S100|S200|AREA3")
 ```
 
-3. Commit and push the code changes
-4. Once PR is approved simply merge the PR. This will cause the PR to be deployed to production
+## Expected File Structure
 
-## Issues
+### STOCK.xlsx
+Must contain these columns:
+- **Column F (6)**: Area
+- **Column G (7)**: Block
+- **Column J (10)**: Container Length (20, 40, 45)
+- **Column M (13)**: FE (F=Full, E=Empty)
+- **Column P (16)**: Mode (Import, Export, Storage)
 
-If you have any problems with Dependabot, please [open an issue][code-dependabot-core-new-issue] on [dependabot/dependabot-core][code-dependabot-core] or contact GitHub Support.
+### Internal Yard Structure
+Each block has 3 rows:
+- Row 1: Import
+- Row 2: Export
+- Row 3: Transshipment/Storage
 
-[code-dependabot-core]: https://github.com/dependabot/dependabot-core/
-[code-dependabot-core-new-issue]: https://github.com/dependabot/dependabot-core/issues/new
-[docs-version-updates]: https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/about-dependabot-version-updates
-[docs-security-updates]: https://docs.github.com/en/code-security/supply-chain-security/managing-vulnerabilities-in-your-projects-dependencies/about-dependabot-security-updates
+Columns:
+- **C**: 20F count
+- **D**: 40F count
+- **E**: 20E count
+- **F**: 40E count
+- **G**: 45 count
+
+### External Yard Structure
+Each yard has 2 rows:
+- Row 1: Import
+- Row 2: Export
+
+Columns:
+- **C**: 20F count
+- **D**: 40F count
+- **E**: 20E count
+- **F**: 40E count
+
+## Troubleshooting
+
+### "File not selected" error
+- Make sure you select a valid file when prompted
+
+### Wrong results
+- Check block/yard mappings in code
+- Verify row numbers are correct
+- Ensure STOCK file column positions match expected structure
+
+### Slow performance
+- Enhanced version is optimized for speed
+- For very large files (>50,000 rows), expect a few minutes
+
+## Important Notes
+1. ✅ **Backup your files** before running
+2. ⚠️ The macro **clears old data** and refills from scratch
+3. 📊 Excel formulas in yard files will recalculate automatically
+4. 🚀 Optimized to process thousands of records quickly
+
+## Support
+- Review comments in the VBA code (in Arabic)
+- Test on small sample data first
+- Modify code sections as needed for your specific requirements
+
+## Example Output
+
+**Internal Yard - Block M:**
+```
+Row 6 (Import):   20F=150, 40F=200, 20E=50, 40E=75
+Row 7 (Export):   20F=100, 40F=180, 20E=30, 40E=60
+Row 8 (Storage):  20F=20,  40F=40,  20E=10, 40E=15
+```
+
+**External Yard - التجارية:**
+```
+Row 6 (Import):   20F=80, 40F=120, 20E=25, 40E=40
+Row 7 (Export):   20F=60, 40F=90,  20E=15, 40E=30
+```
+
+---
+
+**Version**: 1.0  
+**Last Updated**: October 2025  
+**Language**: VBA (Visual Basic for Applications)  
+**Compatibility**: Excel 2010 and later
+
+Good luck! 🚀
